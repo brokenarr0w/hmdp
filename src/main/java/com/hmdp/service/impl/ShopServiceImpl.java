@@ -9,6 +9,7 @@ import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.utils.CacheClient;
 import com.hmdp.utils.RedisConstants;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -29,29 +30,23 @@ import java.util.concurrent.TimeUnit;
 public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IShopService {
     @Resource
     StringRedisTemplate stringRedisTemplate;
+    @Resource
+    CacheClient cacheClient;
     @Override
     public Result queryById(Long id) {
-        //1. 从redis里查询数据
-        String shopValue = stringRedisTemplate.opsForValue().get(RedisConstants.CACHE_SHOP_KEY + id);
-        if (StrUtil.isNotBlank(shopValue)) {
-            Shop shop = JSONUtil.toBean(shopValue, Shop.class);
-            return Result.ok(shop);
-        }
-        //判断命中的是否为空值
-        if(shopValue !=null){
-            return Result.fail("没有找到该商户");
-        }
-        //如果不存在，查询数据库
-        Shop shop = getById(id);
-        if (shop == null) {
-            //在redis中写入空值
-            stringRedisTemplate.opsForValue().set(RedisConstants.CACHE_SHOP_KEY + id, "", RedisConstants.CACHE_NULL_TTL, TimeUnit.MINUTES);
-            //数据库中不存在，返回错误信息
-            return Result.fail("没有找到该商户");
-        }
-        //存在写入redis中
-        stringRedisTemplate.opsForValue().set(RedisConstants.CACHE_SHOP_KEY + id, JSONUtil.toJsonStr(shop), RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
+        //解决缓存穿透
+        Shop shop = cacheClient.queryWithPassThrough(RedisConstants.CACHE_SHOP_KEY, id, Shop.class, this::getById, RedisConstants.CACHE_SHOP_TTL, TimeUnit.MINUTES);
+        //逻辑过期解决缓存击穿
+//       Shop shop1 = cacheClient.queryWithLogicalExpire(
+//                RedisConstants.CACHE_SHOP_KEY,
+//                RedisConstants.LOCK_SHOP_KEY,
+//                id,
+//                Shop.class,
+//                this::getById,
+//                RedisConstants.CACHE_SHOP_TTL,
+//                TimeUnit.MINUTES);
         return Result.ok(shop);
+
     }
 
     /**
