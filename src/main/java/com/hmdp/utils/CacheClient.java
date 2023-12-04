@@ -1,11 +1,13 @@
 package com.hmdp.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.hmdp.entity.Shop;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +75,7 @@ public class CacheClient {
         String key = keyPrefix + id;
         String json = stringRedisTemplate.opsForValue().get(key);
         if(CharSequenceUtil.isNotBlank(json)){
-            return BeanUtil.toBean(json,type);
+            return JSONUtil.toBean(json,type);
         }
         if(json != null) {
             return null;
