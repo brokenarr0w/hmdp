@@ -45,6 +45,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 //                this::getById,
 //                RedisConstants.CACHE_SHOP_TTL,
 //                TimeUnit.MINUTES);
+        Console.log(shop);
         return Result.ok(shop);
 
     }
