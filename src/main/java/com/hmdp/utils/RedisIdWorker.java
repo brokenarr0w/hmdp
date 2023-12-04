@@ -19,8 +19,8 @@ public class RedisIdWorker {
     private static final long BEGIN_TIMESTAMP = 1701388800L;
     private static final int BIT_COUNT = 32;
     @Resource
-    StringRedisTemplate stringRedisTemplate;
-    public long nextId(String keyPrefix){
+     StringRedisTemplate stringRedisTemplate;
+    public  long nextId(String keyPrefix){
         //1. 生成时间戳
         LocalDateTime now = LocalDateTime.now();
         String date = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
