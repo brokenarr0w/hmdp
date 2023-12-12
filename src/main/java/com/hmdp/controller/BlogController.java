@@ -40,7 +40,14 @@ public class BlogController {
         // 返回id
         return Result.ok(blog.getId());
     }
-
+    @GetMapping("/of/user")
+    public Result getBlogById(
+            @RequestParam(value = "current",defaultValue = "1") Integer current,
+            @RequestParam("id") Long id){
+        Page<Blog> blogPage = blogService.lambdaQuery().eq(Blog::getUserId, id).page(new Page<>(current, SystemConstants.MAX_PAGE_SIZE));
+        List<Blog> blogs = blogPage.getRecords();
+        return Result.ok(blogs);
+    }
     @PutMapping("/like/{id}")
     public Result likeBlog(@PathVariable("id") Long id) {
         return blogService.likeBlog(id);

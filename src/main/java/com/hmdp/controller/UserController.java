@@ -65,6 +65,10 @@ public class UserController {
         //获取当前登录的用户并返回
         return Result.ok(UserHolder.getUser());
     }
+    @GetMapping("{id}")
+    public Result getUserById(@PathVariable("id") Long id){
+        return userService.getUserById(id);
+    }
 
     @GetMapping("/info/{id}")
     public Result info(@PathVariable("id") Long userId){

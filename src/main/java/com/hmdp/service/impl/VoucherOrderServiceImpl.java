@@ -70,7 +70,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         Long userId = UserHolder.getUser().getId();
         //intern方法会在new字符串之前会在常量池寻找，如果找到值一样的字符串就直接返回
 
-            int order = this.query()
+            Long order = this.query()
                     .eq("user_id", userId)
                     .eq("voucher_id", voucherId)
                     .count();
